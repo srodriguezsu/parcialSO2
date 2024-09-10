@@ -77,6 +77,7 @@ int main () {
 
         
         printf("\nIngrese su direccion virtual: ");
-        scanf("%s", &input);       
+        scanf("%s", &input);      
+        //sebas es un gilipollas 
     }
 }
