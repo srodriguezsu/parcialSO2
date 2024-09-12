@@ -7,23 +7,16 @@
 int cont = 0;
 int tamanoPagina = 4096;
 
-char* decimalABinario(int numero) {
-    int bits = sizeof(int) * 8;  // Número de bits en un entero (32 bits)
-    char* binario = (char*)malloc(bits + 1);  // Reservar memoria (+1 para el terminador nulo)
-    
-    if (binario == NULL) {
-        return NULL;  // Si falla malloc, devolver NULL
+int decimalABinario(int n) {
+    int binary = 0, base = 1;
+    while (n > 0) {
+        binary += (n % 2) * base;
+        n /= 2;
+        base *= 10;
     }
-
-    // Iterar a través de todos los bits del número
-    for (int i = bits - 1; i >= 0; i--) {
-        int bit = (numero >> i) & 1;  // Obtener el bit más significativo
-        binario[bits - 1 - i] = bit + '0';  // Convertir el bit a carácter '0' o '1'
-    }
-    
-    binario[bits] = '\0';  // Agregar el terminador nulo al final
-    return binario;
+    return binary;
 }
+
 
 int binarioAlDecimal(int numero){
     char str[12];
@@ -37,7 +30,16 @@ void anadirTLB(int *tlb, int x) {
     for (int i = 0; i<5; i++) {
 
             if (x == *(tlb+(5*i))) {
+
+                int * inicio = tlb;
+                int * final = tlb+25;
+                printf("TLB desde: %p hasta %p\n", inicio, final);
                 printf("HIT \n");
+                printf("Pagina: %d\n", *(tlb+(i*5) + 1));
+                printf("Desplazamiento: %d\n", *(tlb+(i*5) + 2));
+                printf("Pagina en Binario: %d\n", *(tlb+(i*5) + 3));
+                printf("Desplazamiento en Binario: %d\n", *(tlb+(i*5) + 4));
+                printf("Politica de reemplazo: 0x0\n");
                 return;
             }
 
@@ -49,16 +51,56 @@ void anadirTLB(int *tlb, int x) {
         for (int i = 0; i <= 20; i++) {
             *(tlb+i) = *(tlb+i+5); 
         }
+        
+         int a = floor(x / tamanoPagina);
+         int b = x % tamanoPagina;
+         int c = decimalABinario(a);
+         int d = decimalABinario(b);
 
          *(tlb+20) = x;
+         *(tlb+21) = a; //Pagina
+         *(tlb+22) = b; // Desplazamiento
+         *(tlb+23) = c; // Pagina en binario
+         *(tlb+24) = d; // Desplazamiento en binario
+         
+
+         int * inicio = tlb;
+         int * final = tlb+25;
+         printf("TLB desde: %p hasta %p\n", inicio, final);
+         printf("MISS \n"); 
+         printf("Pagina: %d\n", *(tlb+21));
+         printf("Desplazamiento: %d\n", *(tlb+22));
+         printf("Pagina en Binario: %d\n", *(tlb+23));
+         printf("Desplazamiento en Binario: %d\n", *(tlb+24));
+
+         int *reemplazo = tlb+20;
+         printf("Politica de reemplazo %p\n", &reemplazo);
+
 
     }
 
     else if (cont<5) {
-        *(tlb+(cont*5)) = x;
-        *(tlb+(cont*5) + 1) = floor(x / tamanoPagina);
-        *(tlb+(cont*5) + 2) = x % tamanoPagina;
-        *(tlb+(cont*5) + 3) = 
+
+        int a = floor(x / tamanoPagina);
+        int b = x % tamanoPagina;
+        int c = decimalABinario(a);
+        int d = decimalABinario(b);
+
+        *(tlb+(cont*5)) = x; //Direccion
+        *(tlb+(cont*5) + 1) = a; // Pagina
+        *(tlb+(cont*5) + 2) = b; // Desplazamiento
+        *(tlb+(cont*5) + 3) = c; // Pagina en binario
+        *(tlb+(cont*5) + 4) = d; // Desplazamiento en binario
+
+        printf("MISS \n"); 
+        int * inicio = tlb;
+        int * final = tlb+25;
+        printf("TLB desde: %p hasta %p\n", inicio, final);
+        printf("Pagina: %d\n", *(tlb+(cont*5) + 1));
+        printf("Desplazamiento: %d\n", *(tlb+(cont*5) + 2));
+        printf("Pagina en Binario: %d\n", *(tlb+(cont*5) + 3));
+        printf("Desplazamiento en Binario: %d\n", *(tlb+(cont*5) + 4));
+        printf("Politica de reemplazo: 0x0\n");
 
         cont++;
 
@@ -85,41 +127,20 @@ int main () {
         clock_gettime(CLOCK_REALTIME, &tiempoInicial);
 
         int direccion = atoi(input);
-
-         
-
         
         anadirTLB(tlb, direccion);
         
 
-        printf("En el tlb esta: %d\n", *tlb);
-        printf("En el tlb tambien esta: %d\n", *(tlb+5));
-        printf("En el tlb tambien esta: %d\n", *(tlb+10));
-        printf("En el tlb tambien esta: %d\n", *(tlb+15));
-        printf("En el tlb tambien esta: %d\n", *(tlb+20));
 
 
 
         
         
         
-        int desplazamientoBinario;
-
-       // printf("Pagina: %d\n", numeroPagina);
-
-        // printf("Desplazamiento: %d\n", desplazamiento);
-        char* dec = decimalABinario(121);
-
-        printf("Pagina en binario: %s\n", dec);
         
-        
-        printf("Desplazamiento en binario: ");
-        // decimalABinario(desplazamiento);
-        // printBinario(desplazamientoBinario);
          
         clock_gettime(CLOCK_REALTIME, &tiempoFinal);
 
-        //printf("\nTiempo en mls %d \n", tiempoFinal - tiempoInicial);
 
         seconds = tiempoFinal.tv_sec - tiempoInicial.tv_sec;
         nanoseconds = tiempoFinal.tv_nsec - tiempoInicial.tv_nsec;
@@ -140,4 +161,5 @@ int main () {
         scanf("%s", &input);      
         //sebas es un gilipollas 
     }
+    free(tlb);
 }
