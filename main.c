@@ -21,8 +21,11 @@ void printEntradaTlb(int *tlb, int posicion, int isHit, int isReplaced) {
     }
     printf("Pagina: %d\n", *(tlb+(posicion*5) + 1));
     printf("Desplazamiento: %d\n", *(tlb+(posicion*5) + 2));
-    printf("Pagina en Binario: %d\n", *(tlb+(posicion*5) + 3));
-    printf("Desplazamiento en Binario: %d\n", *(tlb+(posicion*5) + 4));
+
+    char *string_ptr = (char*)tlb + posicion * 5 + (3*sizeof(int));
+    printf("Desplazamiento en Binario: %s\n", string_ptr);
+    // printf("Pagina en Binario: %s\n", (char*) *(tlb+(posicion*5) + 3));
+    // printf("Desplazamiento en Binario: %d\n", *(tlb+(posicion*5) + 4));
     if (isReplaced > 0)
     {
         int *reemplazo = tlb+(posicion*5);
@@ -37,27 +40,31 @@ void printEntradaTlb(int *tlb, int posicion, int isHit, int isReplaced) {
 void guardarEntradaTlb(int* tlb, int posicion, int direccion){
     int a = floor(direccion / tamanoPagina);
     int b = direccion % tamanoPagina;
-    int c = decimalABinario(a);
-    int d = decimalABinario(b);
+    // char* c = decimalABinario(a);
+    // char* d = decimalABinario(b);
+    
+    char binario[21];
+    decimalABinario(b, binario);
     
     *(tlb+(posicion*5)) = direccion; //Direccion
     *(tlb+(posicion*5) + 1) = a; // Pagina
     *(tlb+(posicion*5) + 2) = b; // Desplazamiento
-    *(tlb+(posicion*5) + 3) = c; // Pagina en binario
-    *(tlb+(posicion*5) + 4) = d; // Desplazamiento en binario
+
+    char *string_ptr = (char*)tlb + posicion * 5 + (3*sizeof(int));
+
+    snprintf(string_ptr, 21, binario);
+    // *(tlb+(posicion*5) + 3) = (char*) binario; // Pagina en binario
+    // *(tlb+(posicion*5) + 24) = d; // Desplazamiento en binario
     return;
 }
 
-int decimalABinario(int n) {
-    int binary = 0, base = 1;
-    while (n > 0) {
-        binary += (n % 2) * base;
-        n /= 2;
-        base *= 10;
+void decimalABinario(int n, char* binaryString) {
+    for (int i = 19; i >= 0; i--) {
+        int bit = (n >> i) & 1;
+        binaryString[19 - i] = bit ? '1' : '0'; // Store '1' or '0'
     }
-    return binary;
+    binaryString[20] = '\0'; // Null-terminate the string
 }
-
 
 int binarioAlDecimal(int numero){
     char str[12];
