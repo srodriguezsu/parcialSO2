@@ -19,7 +19,7 @@ void decimalABinario(int n, int numBits, char* binaryString) {
         
     }
     binaryString[numBits] = '\0';  // Terminar con un NULL
-    printf("binarystring: %s\n", binaryString);
+    // printf("binarystring: %s\n", binaryString);
 }
 
 int binarioADecimal(const char* binaryString) {
@@ -42,8 +42,9 @@ void printEntradaTlb(int *tlb, int posicion, int isHit, int isReplaced) {
 
     int *posicionPtr = tlb+(posicion*tamanoEntrada);
 
-    int * inicio = tlb;
-    int * final = tlb+(tamanoEntrada*cantidadEntradas);
+    void *inicio = (void *)tlb;
+    void *final = (void *)tlb + (tamanoEntrada * cantidadEntradas) - 1;
+
     
     
     printf("TLB desde: %p hasta %p\n", inicio, final);
@@ -82,10 +83,11 @@ void guardarEntradaTlb(int* tlb, int posicion, int direccion){
     char* desplazamientoBinario[12];
 
     decimalABinario(pagina, 20, pagBinario);
-    printf("pagbinario: %s\n", pagBinario);
+    
+    // printf("pagbinario: %s\n", pagBinario);
     decimalABinario(desplazamiento, 12, desplazamientoBinario);
     
-
+    
     *(posicionPtr) = direccion; 
     *(posicionPtr + 1) = binarioADecimal(pagBinario); 
     *(posicionPtr + 2) = binarioADecimal(desplazamientoBinario);
@@ -93,8 +95,8 @@ void guardarEntradaTlb(int* tlb, int posicion, int direccion){
     char *pagBiPtr = (char*)posicionPtr + (3*sizeof(int));
     char *desBiPtr = (char*)posicionPtr + (3*sizeof(int)) + 21;
 
-    printf("pagbinario: %s\n", pagBinario);
-    printf("dezplaBinario: %s\n", desplazamientoBinario);
+    // printf("pagbinario: %s\n", pagBinario);
+    // printf("dezplaBinario: %s\n", desplazamientoBinario);
 
     snprintf(pagBiPtr, 21, "%s", pagBinario);
     snprintf(desBiPtr, 13, "%s", desplazamientoBinario);
