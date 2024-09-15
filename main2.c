@@ -12,12 +12,14 @@ const int tamanoPagina = 4096;
 const int tamanoEntrada = 24;
 const int cantidadEntradas = 5;
 
-void decimalABinario(int n, char* binaryString) {
-    for (int i = (19); i >= 0; i--) {
+void decimalABinario(int n, int numBits, char* binaryString) {
+    for (int i = numBits - 1; i >= 0; i--) {
         int bit = (n >> i) & 1;
-        binaryString[19 - i] = bit ? '1' : '0'; // Almacena '1' o '0'
+        binaryString[numBits - 1 - i] = bit ? '1' : '0';
+        
     }
-    binaryString[20] = '\0'; // Termina la cadena con un nulo
+    binaryString[numBits] = '\0';  // Terminar con un NULL
+    printf("binarystring: %s\n", binaryString);
 }
 
 int binarioADecimal(const char* binaryString) {
@@ -76,11 +78,12 @@ void guardarEntradaTlb(int* tlb, int posicion, int direccion){
 
     int pagina = floor(direccion / tamanoPagina);
     int desplazamiento = direccion % tamanoPagina;
-    char pagBinario[20]; 
-    char desplazamientoBinario[20];
+    char* pagBinario[20]; 
+    char* desplazamientoBinario[12];
 
-    decimalABinario(pagina, pagBinario);
-    decimalABinario(desplazamiento, desplazamientoBinario);
+    decimalABinario(pagina, 20, pagBinario);
+    printf("pagbinario: %s\n", pagBinario);
+    decimalABinario(desplazamiento, 12, desplazamientoBinario);
     
 
     *(posicionPtr) = direccion; 
@@ -90,8 +93,11 @@ void guardarEntradaTlb(int* tlb, int posicion, int direccion){
     char *pagBiPtr = (char*)posicionPtr + (3*sizeof(int));
     char *desBiPtr = (char*)posicionPtr + (3*sizeof(int)) + 21;
 
+    printf("pagbinario: %s\n", pagBinario);
+    printf("dezplaBinario: %s\n", desplazamientoBinario);
+
     snprintf(pagBiPtr, 21, "%s", pagBinario);
-    snprintf(desBiPtr, 21, "%s", desplazamientoBinario);
+    snprintf(desBiPtr, 13, "%s", desplazamientoBinario);
     return;
 }
 
