@@ -79,8 +79,8 @@ void guardarEntradaTlb(int* tlb, int posicion, int direccion){
 
     int pagina = floor(direccion / tamanoPagina);
     int desplazamiento = direccion % tamanoPagina;
-    char* pagBinario[20]; 
-    char* desplazamientoBinario[12];
+    char pagBinario[21]; 
+    char desplazamientoBinario[13];
 
     decimalABinario(pagina, 20, pagBinario);
     
