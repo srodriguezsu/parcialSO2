@@ -12,6 +12,13 @@ const int tamanoPagina = 4096;
 const int tamanoEntrada = 24;
 const int cantidadEntradas = 5;
 
+void sliceString(char* originalString, char* newString, int start, int end) {
+    for (int i = start; i <= end; i++){
+        newString[i-start] = originalString[i];
+    };
+    newString[end-start+1] = '\0';
+}
+
 void decimalABinario(int n, int numBits, char* binaryString) {
     for (int i = numBits - 1; i >= 0; i--) {
         int bit = (n >> i) & 1;
@@ -36,6 +43,8 @@ int binarioADecimal(const char* binaryString) {
     
     return suma;
 }
+
+
 
 void printEntradaTlb(int *tlb, int posicion, int isHit, int isReplaced) {
 
@@ -75,16 +84,19 @@ void guardarEntradaTlb(int* tlb, int posicion, int direccion){
 
     int *posicionPtr = tlb+(posicion*tamanoEntrada);
 
+    // convertir direccion a binario
+    char direccionBin[33];
+    decimalABinario(direccion, 32, direccionBin);
 
-    int pagina = floor(direccion / tamanoPagina);
-    int desplazamiento = direccion % tamanoPagina;
     // variables para binario
     char pagBinario[21]; 
     char desplazamientoBinario[13];
 
-    decimalABinario(pagina, 20, pagBinario);
-    decimalABinario(desplazamiento, 12, desplazamientoBinario);
+    sliceString(direccionBin, pagBinario, 0, 19);
+    sliceString(direccionBin, desplazamientoBinario, 20, 31);
     
+    int pagina = binarioADecimal(pagBinario);
+    int desplazamiento = binarioADecimal(desplazamientoBinario);
     
     *(posicionPtr) = direccion; 
     *(posicionPtr + 1) = binarioADecimal(pagBinario); 
@@ -92,10 +104,7 @@ void guardarEntradaTlb(int* tlb, int posicion, int direccion){
 
     char *pagBiPtr = (char*)posicionPtr + (3*sizeof(int));
     char *desBiPtr = (char*)posicionPtr + (3*sizeof(int)) + 21;
-
-    // printf("pagbinario: %s\n", pagBinario);
-    // printf("dezplaBinario: %s\n", desplazamientoBinario);
-
+    
     snprintf(pagBiPtr, 21, "%s", pagBinario);
     snprintf(desBiPtr, 13, "%s", desplazamientoBinario);
     return;
@@ -103,6 +112,7 @@ void guardarEntradaTlb(int* tlb, int posicion, int direccion){
 
 
 void anadirTLB(int *tlb, int direccion) {
+
     // Buscar dirección en el tlb
     for (int i = 0; i<cantidadEntradas; i++) {
             if (direccion == *(tlb+(tamanoEntrada*i))) {
@@ -179,3 +189,7 @@ int main () {
     free(tlb);
     printf("\nGoodbye!\n");
 }
+
+
+
+// gcc -o traducir main.c -lm
