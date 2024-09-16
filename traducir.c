@@ -19,7 +19,6 @@ void decimalABinario(int n, int numBits, char* binaryString) {
         
     }
     binaryString[numBits] = '\0';  // Terminar con un NULL
-    // printf("binarystring: %s\n", binaryString);
 }
 
 int binarioADecimal(const char* binaryString) {
@@ -47,7 +46,7 @@ void printEntradaTlb(int *tlb, int posicion, int isHit, int isReplaced) {
 
     
     
-    printf("TLB desde: %p hasta %p\n", inicio, final);
+    printf("TLB desde %p hasta %p\n", inicio, final);
     if (isHit > 0)
     {
         printf("TLB Hit\n");
@@ -63,11 +62,11 @@ void printEntradaTlb(int *tlb, int posicion, int isHit, int isReplaced) {
     printf("Desplazamiento en Binario: %s\n", desBiPtr);
     if (isReplaced > 0)
     {
-        int *reemplazo = tlb+(posicion*tamanoEntrada);
-        printf("Política de reemplazo %p\n", &reemplazo);
+        int *reemplazo = (void *) (tlb+(posicion*tamanoEntrada));
+        printf("Política de reemplazo: %p\n", reemplazo);
     }
     else{
-        printf("Política de reemplazo 0x0\n");
+        printf("Política de reemplazo: 0x0\n");
     }
     
     return;
@@ -79,12 +78,11 @@ void guardarEntradaTlb(int* tlb, int posicion, int direccion){
 
     int pagina = floor(direccion / tamanoPagina);
     int desplazamiento = direccion % tamanoPagina;
+    // variables para binario
     char pagBinario[21]; 
     char desplazamientoBinario[13];
 
     decimalABinario(pagina, 20, pagBinario);
-    
-    // printf("pagbinario: %s\n", pagBinario);
     decimalABinario(desplazamiento, 12, desplazamientoBinario);
     
     
@@ -116,8 +114,8 @@ void anadirTLB(int *tlb, int direccion) {
     // Si la cola está llena 
     if (cont == cantidadEntradas) {
         // Mover todos los elementos para sobrescribir el primero
-        for (int i = 0; i <= 20; i++) {
-            *(tlb+i) = *(tlb+i+tamanoEntrada); 
+        for (int i = 0; i < tamanoEntrada*cantidadEntradas; i++) {
+            *(tlb+i) = *(tlb+i+tamanoEntrada);
         }
         // Guardar la dirección al final de la cola
         guardarEntradaTlb(tlb, 4, direccion); 
@@ -136,7 +134,7 @@ void anadirTLB(int *tlb, int direccion) {
 
 int main () {
     char input[1000];
-    printf("Ingrese su dirección virtual: ");
+    printf("Ingrese dirección virtual: ");
     scanf("%s", input);
     
     int *tlb =  malloc(tamanoEntrada * cantidadEntradas); 
@@ -152,6 +150,7 @@ int main () {
         int direccion = atoi(input);
         
         anadirTLB(tlb, direccion);
+
         
         clock_gettime(CLOCK_REALTIME, &tiempoFinal);
 
@@ -171,10 +170,12 @@ int main () {
         printf("Tiempo: %.9f segundos\n", elapsed);
 
         
-        printf("\nIngrese su dirección virtual: ");
+        printf("\nIngrese dirección virtual: ");
         scanf("%s", input);      
         
     }
+    // liberar recursos
+
     free(tlb);
-    printf("\n¡Adiós!\n");
+    printf("\nGoodbye!\n");
 }
